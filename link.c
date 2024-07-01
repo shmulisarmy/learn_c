@@ -4,15 +4,16 @@
 
 
 typedef struct LinkedList LinkedList;
+typedef struct HashMap HashMap;
 
 struct LinkedList{
-    int key;
-    int value;
+    char* key;
+    char* value;
     LinkedList* next;
 };
 
 
-void set(LinkedList** lldp, int key, int value){
+void set(LinkedList** lldp, char* key, char* value){
     while (*lldp){
         if ((*lldp)->key == key){
             (*lldp)->value = value;
@@ -26,19 +27,19 @@ void set(LinkedList** lldp, int key, int value){
     (*lldp)->next = NULL;
 }
 
-int get(LinkedList* llp, int key){
+char* get(LinkedList* llp, char* key){
     while (llp){
         if (llp->key == key){
             return llp->value;
         }
         llp = llp->next;
     }
-    return -1;
+    return NULL;
 }
 
 void display(LinkedList* llp){
     while (llp){
-        printf("%d: %d\n", llp->key, llp->value);
+        printf("%s: %s\n", llp->key, llp->value);
         llp = llp->next;
     }
 }
@@ -52,14 +53,58 @@ void memClear(LinkedList* llp){
     }
 }
 
-int main(){
-    LinkedList* llhp = NULL;
-    set(&llhp, 4, 5);
-    set(&llhp, 4, 1);
-    set(&llhp, 7, 2);
-    set(&llhp, 45, 7);
-    set(&llhp, 7, 3);
-    printf("%d\n", get(llhp, 7));
-    printf("%d\n", get(llhp, 22));
-    memClear(llhp);
+
+struct HashMap{
+    // int size;
+    LinkedList* list_of_chains[20];
+};
+
+void hmSet(HashMap* hmp, char* key, char* value){
+    int modded_hash = hasify(key) %20;
+    set(&(hmp->list_of_chains[modded_hash]), key, value);
 }
+
+char* hmGet(HashMap* hmp, char* key){
+    int modded_hash = hasify(key) %20;
+    return get(hmp->list_of_chains[modded_hash], key);
+}
+
+
+int hasify(char charPointer[]){
+    int val = 0;
+    int index = 0;
+    while (charPointer[index] != '\0')
+    {
+        val += (int)charPointer[index];
+        val = val >> 1;
+        printf("%d\n", val);
+        index++;
+    }
+    return val;
+    
+
+}
+
+
+void destroy_hash_map(HashMap* hm){
+    for (size_t i = 0; i < 20; i++){
+        memClear(hm->list_of_chains[i]);
+    }
+    
+}
+
+
+
+int main(){
+    // HashMap hm;
+    // for (size_t i = 0; i < 20; i++)
+    // {
+    //     hm.list_of_chains[i] = NULL;    /* code */
+    // };
+    // hmSet(&hm, )
+    // destroy_hash_map(&hm);
+    // printf("%d", (int)"hello");
+    
+}
+
+

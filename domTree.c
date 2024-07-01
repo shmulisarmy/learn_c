@@ -28,8 +28,9 @@ void constructDomTree(DomTree* dtp, char* tagName, char* className, char* textCo
 
 void appendChild(DomTree* parent, DomTree* child){
     for (size_t i = 0; i < max_child_count; i++){
-        if (parent->children[i] != NULL){
+        if (parent->children[i] == NULL){
             parent->children[i] = child;
+            break;
         }
     }
     child->parent = parent;
@@ -40,12 +41,16 @@ void display(DomTree* dtp, int indent_level){
     for (size_t i = 0; i < indent_level; i++){
         printf("    ");
     }
-    printf("<%s class='%s'> %s </%s>\n", dtp->tagName, dtp->className, dtp->textContent, dtp->tagName);
+    printf("<%s class='%s'> %s\n", dtp->tagName, dtp->className, dtp->textContent);
     for (size_t i = 0; i < max_child_count; i++){
         if (dtp->children[i] != NULL){
             display(dtp->children[i], indent_level+1);
         }
     }
+    for (size_t i = 0; i < indent_level; i++){
+        printf("    ");
+    }
+    printf("</%s>\n", dtp->tagName );
     
 }
 

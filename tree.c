@@ -1,59 +1,57 @@
 #include <stdio.h>
-#include <stdlib.h>
 
 
 
-
-
-struct tree{
-    int value;
-    struct tree* right;
-    struct tree* left;
+#define max_child_count 10
+typedef struct domTree domTree;
+struct domTree{
+    char* tagName;
+    char* textContent;
+    char* id;
+    char* classList[max_child_count];
+    struct domTree* children[10];
+    struct domTree* parentElement;
 };
 
-typedef struct tree tree;
+
+//return type is used to notify of new index or -1 
+int appendChild(struct domTree* dt, domTree* childPointer){
+    for (size_t i = 0; i < max_child_count; i++)
+    {
+        if (dt->children[i] == NULL){
+            dt->children[i] = childPointer;
+            return i;
+        };
+    };
+    return -1;
+    
+};
 
 
-
-void insert(tree* t, int num){
-    if (t == NULL){
-        t = (tree*)malloc(sizeof(tree));
-        if (t == NULL) {
-            perror("Failed to allocate memory");
-            exit(EXIT_FAILURE);
-        }
-        t->value = num;
-        t->right = NULL;
-        t->left = NULL;
-    } else {
-
-    if (num > t->value){
-        insert(t->right, num);
-    } else {
-        insert(t->left, num);
-    }
-    }
-
-}
-
-
-void display(tree* t){
-    if (t->right){
-        display(t->right);
-    }
-    printf("%d", t->value);
-    if (t->left){
-        display(t->left);
+void display(domTree* element, int indent_level){
+    for (size_t i = 0; i < indent_level; i++)
+    {
+        printf("     ");
     }
     
+    printf("%s#%s: %s\n", element->tagName, element->id, element->textContent);
+    for (size_t i = 0; i < max_child_count; i++){
+        if (element->children[i] != NULL){
+            display(element->children[i], indent_level+1);
+        }
+    }
 }
 
 
-void destroy(tree* t) {
-    if (t != NULL) {
-        destroy(t->right);
-        destroy(t->left);
-        free(t);
+void remove(domTree* elementPointer){
+    domTree *parent = elementPointer->parentElement;
+    free(elementPointer);
+    elementPointer = NULL;
+    for (size_t i = 0; i < max_child_count; i++)
+    {
+        if (parent->children[i] == elementPointer){
+            parent->children[i] = NULL;
+        }
     }
 }
 
@@ -61,11 +59,17 @@ void destroy(tree* t) {
 
 
 int main(){
-    tree t = {4};
-    insert(&t, 5);
-    insert(&t, 6);
-    insert(&t, 2);
-    insert(&t, 1);
-    insert(&t, 8);
-    display(&t);
+    //will turn into a dangeling pointer when main is exited (assuming that an external program is still holding onto a pointer)
+    struct domTree document = {"div", "this is the main element", "main", {"head", "leader", "menu"}};
+    for (size_t i = 0; i < 10; i++)
+    {
+        document.children[i] = NULL;
+        /* code */
+    }
+    
+    document.parentElement = NULL;
+    domTree child = {"form", "how old are you", "q", {"?"}};
+    appendChild(&document, &child);
+    display(&document, 0);
+    
 }
