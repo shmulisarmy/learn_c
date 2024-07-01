@@ -1,25 +1,44 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct LinkedList{
-    int value;
-    struct LinkedList* next;
-};
+
 
 typedef struct LinkedList LinkedList;
 
-void insert(LinkedList** lldp, int value){
+struct LinkedList{
+    int key;
+    int value;
+    LinkedList* next;
+};
+
+
+void set(LinkedList** lldp, int key, int value){
     while (*lldp){
+        if ((*lldp)->key == key){
+            (*lldp)->value = value;
+            return;
+        }
         lldp = &(**lldp).next;
     }
     *lldp = (LinkedList*)malloc(sizeof(LinkedList));
+    (*lldp)->key = key;
     (*lldp)->value = value;
     (*lldp)->next = NULL;
 }
 
+int get(LinkedList* llp, int key){
+    while (llp){
+        if (llp->key == key){
+            return llp->value;
+        }
+        llp = llp->next;
+    }
+    return -1;
+}
+
 void display(LinkedList* llp){
     while (llp){
-        printf("%d\n", llp->value);
+        printf("%d: %d\n", llp->key, llp->value);
         llp = llp->next;
     }
 }
@@ -35,9 +54,12 @@ void memClear(LinkedList* llp){
 
 int main(){
     LinkedList* llhp = NULL;
-    insert(&llhp, 4);
-    insert(&llhp, 45);
-    insert(&llhp, 7);
-    display(llhp);
+    set(&llhp, 4, 5);
+    set(&llhp, 4, 1);
+    set(&llhp, 7, 2);
+    set(&llhp, 45, 7);
+    set(&llhp, 7, 3);
+    printf("%d\n", get(llhp, 7));
+    printf("%d\n", get(llhp, 22));
     memClear(llhp);
 }
