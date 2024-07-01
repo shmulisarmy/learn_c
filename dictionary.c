@@ -1,60 +1,66 @@
+// CONSTANTS:
+//      struct LinkedList: in order to handle collisions in the hashMap    
+// 
+
+
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 
-
-
-
-struct LinkedList{
+struct LinkedList {
     char* key;
     char* value;
     struct LinkedList* next;
 };
 
-
-
 typedef struct LinkedList LinkedList;
 
-
-void display(LinkedList* ll){
+void display(LinkedList* ll) {
     LinkedList* cll = ll;
-    while(cll){
-        printf("%s: %s\n", ll->key, ll->value);
+    while (cll) {
+        printf("%s: %s\n", cll->key, cll->value);
         cll = cll->next;
     }
-
 }
 
-void insert(LinkedList* ll, char* key, char* value){
-    LinkedList* cll = ll;
-    while(cll){
-        cll = cll->next;
-    }
-    cll = (LinkedList*)malloc(sizeof(LinkedList));
-    if (cll == NULL) {
+void insert(LinkedList** ll, char* key, char* value) {
+    LinkedList* new_node = (LinkedList*)malloc(sizeof(LinkedList));
+    if (new_node == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
-        // return 1;
+        return;
     }
-    cll->key = key;
-    cll->value = value;
+    new_node->key = key;
+    new_node->value = value;
+    new_node->next = NULL;
 
+    if (*ll == NULL) {
+        *ll = new_node; // If list is empty, new_node becomes the head
+    } else {
+        LinkedList* cll = *ll;
+        while (cll->next) {
+            cll = cll->next;
+        }
+        cll->next = new_node; // Append new_node at the end of the list
+    }
 }
 
-void unalloc(LinkedList* ll){
+void unalloc(LinkedList* ll) {
     LinkedList* cll = ll;
-    while(cll){
+    while (cll) {
+        LinkedList* next = cll->next;
         free(cll);
-        LinkedList* old_ll = cll;
-        cll = cll->next;
-        free(old_ll);
+        cll = next;
     }
 }
 
 
-int main(){
-    LinkedList* ll = NULL;
-    insert(ll, "age", "20");
-    insert(ll, "age", "20");
-    display(ll);
-    // unalloc(ll);
 
+struct hashMap{
+    LinkedList llList;
+}
+
+int main() {
+    
 }
