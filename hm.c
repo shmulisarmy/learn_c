@@ -1,80 +1,62 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 
 
+typedef struct linkedList linkedList; 
 
-struct bst{
-    int key;
-    int value;
-    struct bst* right;
-    struct bst* left;
+struct linkedList{
+    char* key;
+    char* value;
+    linkedList* next;
 };
 
 
-typedef struct bst bst;
 
-void set(bst** b, int key, int value){
-    if (*b == NULL){
-        *b = (bst*)malloc(sizeof(bst));
-        if (*b == NULL){
-            perror("cannot malloc for b on line 23\n");
+
+void set(linkedList* llp, const char* key, const char* value){
+    //to handle the case where this is the first set item
+    if (llp->key == NULL){
+        llp->key = (char*)malloc(sizeof(strlen(key)+1));
+        llp->value = (char*)malloc(sizeof(strlen(value)+1));
+        strcpy(llp->key,  key);
+        strcpy(llp->value,  value);
+        return;
+    }
+    while(llp && llp->next){
+        llp = llp->next;
+        printf("loop\n");
+        if (strcmp(llp->next->key, key) == 0){
+            llp->next->value = (char*)malloc(sizeof(strlen(value)+1));
+            strcpy(llp->next->value,  value);
+            return;
         }
-
-        (*b)->key = key;
-        (*b)->value = value;
-        (*b)->right = NULL;
-        (*b)->left = NULL;
-        return;
     }
-    if (key == (*b)->key){
-        (*b)->value = value;
-    } else if (key < (*b)->key){
-        set(&(**b).left, key, value);
-    } else {
-        set(&(**b).right, key, value);
-    }
-}
-
-int get(bst** b, int key){
-    if (*b == NULL){
-        return -1;
-    }
-    if (key == (*b)->key){
-        return (*b)->value;
-    }
-    if (key < (*b)->key){
-        return get(&(**b).left, key);
-    } else {
-        return get(&(**b).right, key);
-    }
+    llp->next = (linkedList*)malloc(sizeof(linkedList));
+    llp->next->key = (char*)malloc(sizeof(strlen(key)+1));
+    llp->next->value = (char*)malloc(sizeof(strlen(value)+1));
+    strcpy(llp->next->key,  key);
+    strcpy(llp->next->value,  value);
 }
 
 
-void traverse(bst* b){
-    if (b == NULL){
-        return;
+void display(linkedList* ll){
+    while (ll){
+        printf("key: %s, value: %s\n", ll->key, ll->value);
+        ll = ll->next;
     }
-    traverse(b->left);
-    printf("%d: %d\n", b->key, b->value);
-    traverse(b->right);
 }
-
 
 
 int main(){
-    bst* b;
-    b = (bst*)malloc(sizeof(bst));
-    b->key = 5;
-    b->value = 4;
-    b->left = NULL;
-    b->right = NULL;
-    set(&b, 7, 4);
-    set(&b, 1, 6);
-    set(&b, 4, 2);
-    set(&b, 1, 6);
-    set(&b, 2, 8);
-    set(&b, 8, 1);
-    // printf("%d", get(&b, 7));
-    traverse(b);
+    linkedList llh;
+    llh.next = NULL;
+    llh.key = NULL;
+    set(&llh, "shmuli", "keller");
+    set(&llh, "hershi", "wallfish");
+    set(&llh, "chok", "litif");
+    set(&llh, "hellen", "keler");
+    set(&llh, "c", "++");
+    display(&llh);
 }
