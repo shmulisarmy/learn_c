@@ -1,71 +1,76 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
+typedef struct htmlElement htmlElement;
 
+struct htmlElement {
+  char tagName[10];
+  char className[10];
+  char attributes[10];
+  char text[20];
+  int childCount;
+  htmlElement *children[10];
+  htmlElement *parent;
 
-#define max_child_count 10
-typedef struct DomTree DomTree;
-
-
-struct DomTree{
-    char* tagName;
-    char* className;
-    char* textContent;
-    DomTree* parent;
-    DomTree* children[max_child_count];
 };
 
 
-void constructDomTree(DomTree* dtp, char* tagName, char* className, char* textContent){
-    dtp->tagName = tagName;
-    dtp->className = className;
-    dtp->textContent = textContent;
-    dtp->parent = NULL;
-    for (size_t i = 0; i < max_child_count; i++){
-        dtp->children[i] = NULL;
-    }
+
+void appendChild(htmlElement* parent, htmlElement* child){
+  parent->children[parent->childCount] = child;
+  parent->childCount++;
+  child->parent = parent;
 }
 
-void appendChild(DomTree* parent, DomTree* child){
-    for (size_t i = 0; i < max_child_count; i++){
-        if (parent->children[i] == NULL){
-            parent->children[i] = child;
-            break;
-        }
+
+htmlElement* create_htmlElement(char tagName[10], char text[10], char className[10], char attributes[10], htmlElement* parent){
+    htmlElement* e = (htmlElement*)malloc(sizeof(htmlElement));
+    if (!e) {
+        fprintf(stderr, "Error allocating memory.");
+        exit(EXIT_FAILURE);
     }
-    child->parent = parent;
-    
+    strcpy(e->text, text);
+    strcpy(e->className, className);
+    strcpy(e->attributes, attributes);
+    strcpy(e->tagName, tagName);
+    e->childCount = 0;
+    // for(int i = 0; i < passed_child_len; i++){
+    //     e->children[i] = children[i];
+    // }
+    appendChild(parent, e);
+    return e;
 }
 
-void display(DomTree* dtp, int indent_level){
-    for (size_t i = 0; i < indent_level; i++){
-        printf("    ");
+
+void display(htmlElement* elementPointer, int indentLevel){
+  for (size_t i = 0; i < indentLevel; i++)
+  {
+    printf("  ");
+  }
+  
+    printf("<%s class='%s'>", elementPointer->className, elementPointer->className);
+    for (size_t i = 0; i < 10; i++)
+    {
+      if (elementPointer->children[i] != NULL){
+        display(elementPointer->children[i], indentLevel+1);
+      }
     }
-    printf("<%s class='%s'> %s\n", dtp->tagName, dtp->className, dtp->textContent);
-    for (size_t i = 0; i < max_child_count; i++){
-        if (dtp->children[i] != NULL){
-            display(dtp->children[i], indent_level+1);
-        }
-    }
-    for (size_t i = 0; i < indent_level; i++){
-        printf("    ");
-    }
-    printf("</%s>\n", dtp->tagName );
-    
+    for (size_t i = 0; i < indentLevel; i++)
+    {
+      printf("  ");
+    } 
+    printf("</%s>", elementPointer->tagName);
+
 }
 
 
 int main(){
-    DomTree document;
-    constructDomTree(&document, "document", "red-primary", "hello world");
-
-    DomTree style;
-    constructDomTree(&style, "style", "uses-bootstrap", "hello this is a style");
-
-    DomTree body;
-    constructDomTree(&body, "body", "blue-primary", "my name is jerry");
-
-    appendChild(&document, &body);
-
-    display(&document, 0);
+    htmlElement* document = create_htmlElement("document", "document", "none", "none", NULL);
+    htmlElement* body = create_htmlElement("body", "body", "none", "none", document);
+    htmlElement* h1 = create_htmlElement("h1", "h1", "none", "none", body);
+    strcpy(h1->text, "hello world");
+    htmlElement* p = create_htmlElement("p", "p", "none", "none", body);
+    strcpy(p->text, "this is a test");
+    display(document, 0);
 }
